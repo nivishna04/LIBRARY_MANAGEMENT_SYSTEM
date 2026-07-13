@@ -1,0 +1,4 @@
+node_modules/
+eclipsesoul.db
+eclipsesoul.db-journal
+.DS_Store

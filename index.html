@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EclipseSoul Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div id="cursor-corona" class="cursor-layer"></div>
+<div id="cursor-core" class="cursor-layer"></div>
+<canvas id="cursor-trail"></canvas>
+
+<!-- Ambient particle backdrop -->
+<canvas id="spore-field"></canvas>
+
+<!-- ============ LOADING / GATE SEQUENCE ============ -->
+<div id="gate-screen">
+  <div class="gate-frame">
+    <svg class="gate-ring" viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="90" class="ring ring-1"/>
+      <circle cx="100" cy="100" r="72" class="ring ring-2"/>
+      <circle cx="100" cy="100" r="54" class="ring ring-3"/>
+    </svg>
+    <div class="gate-core"></div>
+  </div>
+  <p class="gate-label">OPENING THE GATE<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
+  <div class="gate-progress"><div class="gate-progress-fill" id="gate-progress-fill"></div></div>
+</div>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div id="auth-screen" class="hidden">
+  <div class="auth-bg-glow"></div>
+  <div class="auth-card glass">
+    <div class="brand">
+      <span class="brand-mark">◈</span>
+      <h1>Eclipse<span>Soul</span></h1>
+      <p class="brand-sub">LIBRARY OF THE UPSIDE-DOWN CAMPUS</p>
+    </div>
+
+    <div class="role-tabs" role="tablist">
+      <button class="role-tab active" data-role="student">Student</button>
+      <button class="role-tab" data-role="librarian">Librarian</button>
+      <button class="role-tab" data-role="admin">Admin</button>
+    </div>
+
+    <div class="auth-mode-toggle">
+      <button class="mode-btn active" data-mode="login">Sign In</button>
+      <button class="mode-btn" data-mode="register">Register</button>
+      <button class="mode-btn" data-mode="forgot">Forgot</button>
+    </div>
+
+    <form id="auth-form">
+      <div class="field" id="field-name" style="display:none">
+        <label>Full Name</label>
+        <input type="text" id="reg-name" placeholder="Eleven Hopper">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="auth-email" placeholder="you@eclipsesoul.edu" required>
+      </div>
+      <div class="field" id="field-password">
+        <label>Password</label>
+        <input type="password" id="auth-password" placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn-glow" id="auth-submit">Enter the Library</button>
+      <p class="auth-note" id="auth-note">Demo mode — any email/password combination works. No real accounts are created.</p>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MAIN APP ============ -->
+<div id="app" class="hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar glass">
+    <div class="sidebar-brand">
+      <span class="brand-mark small">◈</span>
+      <span class="sidebar-brand-text">Eclipse<span>Soul</span></span>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="avatar-ring"><div class="avatar-dot"></div></div>
+      <div>
+        <p class="user-name" id="side-user-name">—</p>
+        <p class="user-role" id="side-user-role">—</p>
+      </div>
+    </div>
+
+    <nav id="side-nav" class="side-nav"></nav>
+
+    <button id="logout-btn" class="logout-btn">⏻ Sign Out</button>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-panel">
+    <header class="topbar glass">
+      <button id="sidebar-toggle" class="icon-btn only-mobile">☰</button>
+      <h2 id="section-title">Dashboard</h2>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="notif-btn">🔔<span class="badge" id="notif-count">0</span></button>
+        <button class="icon-btn" id="ai-btn">✦ AI</button>
+      </div>
+    </header>
+
+    <div class="content-scroll" id="content-scroll">
+
+      <!-- OVERVIEW -->
+      <section class="view" id="view-overview">
+        <div class="stat-grid" id="stat-grid"></div>
+        <div class="panel-grid">
+          <div class="glass panel">
+            <h3>Recent Activity</h3>
+            <ul class="activity-list" id="activity-list"></ul>
+          </div>
+          <div class="glass panel">
+            <h3>New Arrivals</h3>
+            <div class="mini-book-row" id="arrivals-row"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BOOKS -->
+      <section class="view" id="view-books" hidden>
+        <div class="toolbar">
+          <input type="text" id="book-search" placeholder="Search title, author, ISBN, or category…" class="search-input">
+          <select id="book-category" class="select-input"><option value="">All Categories</option></select>
+          <button class="btn-outline" id="add-book-btn" hidden>+ Add Book</button>
+        </div>
+        <div class="book-grid" id="book-grid"></div>
+      </section>
+
+      <!-- ISSUED / TRANSACTIONS -->
+      <section class="view" id="view-transactions" hidden>
+        <div class="table-wrap glass">
+          <table class="data-table" id="transactions-table">
+            <thead><tr><th>Book</th><th>Student</th><th>Issued</th><th>Due</th><th>Status</th><th>Fine</th><th></th></tr></thead>
+            <tbody id="transactions-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- RESERVATIONS -->
+      <section class="view" id="view-reservations" hidden>
+        <div class="table-wrap glass">
+          <table class="data-table" id="reservations-table">
+            <thead><tr><th>Book</th><th>Student</th><th>Reserved On</th><th>Status</th><th></th></tr></thead>
+            <tbody id="reservations-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SEATS -->
+      <section class="view" id="view-seats" hidden>
+        <div class="seat-legend">
+          <span><i class="dot free"></i> Available</span>
+          <span><i class="dot mine"></i> Your Seat</span>
+          <span><i class="dot taken"></i> Occupied</span>
+        </div>
+        <div class="seat-grid" id="seat-grid"></div>
+      </section>
+
+      <!-- STUDENTS (librarian/admin) -->
+      <section class="view" id="view-students" hidden>
+        <div class="toolbar">
+          <h3 style="flex:1;margin:0">Registered Students</h3>
+          <button class="btn-outline" id="add-student-btn">+ Add Student</button>
+        </div>
+        <div class="table-wrap glass">
+          <table class="data-table" id="students-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Books Issued</th><th>Fines Due</th><th>Status</th><th></th></tr></thead>
+            <tbody id="students-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- FINES -->
+      <section class="view" id="view-fines" hidden>
+        <div class="table-wrap glass">
+          <table class="data-table" id="fines-table">
+            <thead><tr><th>Student</th><th>Book</th><th>Amount</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+            <tbody id="fines-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SCANNER -->
+      <section class="view" id="view-scanner" hidden>
+        <div class="scanner-wrap glass">
+          <div class="scanner-frame">
+            <div class="scan-line"></div>
+            <p class="scanner-hint">Point a QR / Barcode at the frame</p>
+          </div>
+          <button class="btn-glow" id="simulate-scan">Simulate Scan</button>
+          <p class="scan-result" id="scan-result"></p>
+        </div>
+      </section>
+
+      <!-- REPORTS (admin) -->
+      <section class="view" id="view-reports" hidden>
+        <div class="panel-grid">
+          <div class="glass panel"><h3>Circulation (7 days)</h3><canvas id="chart-circulation" height="180"></canvas></div>
+          <div class="glass panel"><h3>Category Distribution</h3><canvas id="chart-category" height="180"></canvas></div>
+        </div>
+        <div class="toolbar" style="margin-top:20px">
+          <button class="btn-outline">⬇ Export PDF</button>
+          <button class="btn-outline">⬇ Export Excel</button>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="view" id="view-profile" hidden>
+        <div class="glass panel profile-panel">
+          <div class="avatar-ring big"><div class="avatar-dot"></div></div>
+          <h3 id="profile-name">—</h3>
+          <p id="profile-email" class="muted">—</p>
+          <div class="profile-stats" id="profile-stats"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- Notifications Drawer -->
+<div id="notif-drawer" class="drawer glass">
+  <div class="drawer-head"><h3>Notifications</h3><button class="icon-btn" id="notif-close">✕</button></div>
+  <ul class="notif-list" id="notif-list"></ul>
+</div>
+
+<!-- AI Assistant Panel -->
+<div id="ai-drawer" class="drawer glass ai-drawer">
+  <div class="drawer-head">
+    <div class="ai-companion-select">
+      <button class="companion-btn active" data-companion="lyra">Lyra</button>
+      <button class="companion-btn" data-companion="link">Link</button>
+    </div>
+    <button class="icon-btn" id="ai-close">✕</button>
+  </div>
+  <div class="ai-avatar-stage">
+    <svg id="ai-avatar-svg" viewBox="0 0 200 200"></svg>
+    <p class="ai-status" id="ai-status">Idle…</p>
+  </div>
+  <div class="ai-chat" id="ai-chat"></div>
+  <form id="ai-form" class="ai-input-row">
+    <input type="text" id="ai-input" placeholder="Ask about books, fines, due dates…" autocomplete="off">
+    <button type="submit" class="btn-glow small">Send</button>
+  </form>
+</div>
+<div id="overlay-scrim" class="scrim"></div>
+
+<!-- If the backend runs somewhere other than localhost:3001, set it here:
+<script>window.ECLIPSESOUL_API_BASE = "https://your-backend-url/api";</script> -->
+<script src="script.js"></script>
+</body>
+</html>

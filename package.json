@@ -1,0 +1,12 @@
+{
+  "name": "eclipsesoul-simple-backend",
+  "version": "1.0.0",
+  "description": "Minimal Express + SQLite API for adding/listing/deleting books and students.",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
